@@ -23,7 +23,7 @@ export const Page = () => {
         <Route path='/' element={<Home />} />
         <Route path='/register' element={<Form />} />
         <Route path='/login' element={<LoginForm />} />
-        <Route path='/profile/:userId?' element={<Profile />} />
+        <Route path='/profile/:user_id' element={<Profile />} />
       </Routes>
     </>
   );

@@ -43,9 +43,9 @@ export const Form = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          name: nameValue,
           email: emailValue,
           password: passwordValue,
-          name: nameValue,
         }),
       }).then(res => {
         if (res.ok) {

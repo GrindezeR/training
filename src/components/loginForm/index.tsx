@@ -42,7 +42,8 @@ export const LoginForm = () => {
         .then(res => res.json())
         .then(data => {
           if (data.status === 200) {
-            navigate('/profile');
+            console.log(data)
+            navigate(`/profile/${data.user_id}`);
             localStorage.setItem('auth', 'true');
             dispatch(logInAC(true));
           } else return Promise.reject(data);
