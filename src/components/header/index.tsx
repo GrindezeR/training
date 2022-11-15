@@ -8,14 +8,18 @@ export const Header = () => {
   const isLoggedIn = useSelector<AppRootStateType, boolean>(
     state => state.auth.isLoggedIn
   );
+  const user_id = useSelector<AppRootStateType, string>(
+    state => state.auth.user_id
+  );
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const onLogOutClick = () => {
     localStorage.setItem('auth', 'false');
-    dispatch(logInAC(false));
+    localStorage.setItem('id', '');
+    dispatch(logInAC(false, ''));
     navigate('/');
   };
-
+  const profileClick = () => {};
   return (
     <div className={styles.header}>
       <ul className={styles.navbar}>
@@ -24,7 +28,10 @@ export const Header = () => {
         </Link>
         {isLoggedIn ? (
           <>
-            <Link to={'/profile'} className={styles.nav_item}>
+            <Link
+              to={`/profile/?id=${user_id}`}
+              onClick={profileClick}
+              className={styles.nav_item}>
               Profile
             </Link>
             <button onClick={onLogOutClick} className={styles.nav_item}>

@@ -1,49 +1,67 @@
-import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { AppType } from '../../state/appReducer';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { AuthType } from '../../state/authReducer';
+import { ExerciseType, setExerciseDataAC } from '../../state/exerciseReducer';
 import { AppRootStateType } from '../../state/store';
+import { Exercise } from '../exercise';
 import styles from './styles.module.css';
 
-type Profile = {
-  user_id: string;
-  push_ups: number;
-  pull_ups: number;
-  sit_ups: number;
-  running: number;
-};
-
 export const Profile = () => {
-  const [userData, setUserData] = useState<Profile>();
-  const isAuth = useSelector<AppRootStateType, boolean>(
-    state => state.auth.isLoggedIn
+  const [error, setError] = useState('');
+  const [inputValue, setInputValue] = useState('');
+  const dispatch = useDispatch();
+  const authData = useSelector<AppRootStateType, AuthType>(state => state.auth);
+  const exerciseData = useSelector<AppRootStateType, ExerciseType[]>(
+    state => state.exercise
   );
-  const { user_id } = useParams();
-console.log(isAuth);
-
   useEffect(() => {
-    if (isAuth) {
-      fetch(`http://192.168.0.105:3000/api/profile/?id=${user_id}`)
+    if (authData.isLoggedIn) {
+      fetch(`http://192.168.0.104:3000/api/exercises/?id=${authData.user_id}`)
         .then(res => res.json())
         .then(data => {
-          setUserData(data);
+          if (data.status === 200) {
+            console.log(data.result)
+            dispatch(setExerciseDataAC(data.result));
+          } else {
+            return Promise.reject(data);
+          }
+        })
+        .catch(error => {
+          setError(error.message);
         });
     }
-  }, [isAuth]);
-
-  if (!userData) return null;
-
-  const { push_ups, pull_ups, sit_ups, running } = userData;
-  console.log(userData);
+  }, [authData.isLoggedIn]);
+  const onAddExerciseHandler = () => {};
+  const onChangeExerciseHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.currentTarget.value);
+  };
 
   return (
-    <div className='flex flex-col gap-4'>
-      <h1>Status</h1>
-      {push_ups && <span>Отжуманя: {push_ups}</span>}
-      {pull_ups && <span>Подтягиваня: {pull_ups}</span>}
-      {sit_ups && <span>Приседаня: {sit_ups}</span>}
-      {running && <span>Беганя: {running}</span>}
+    <div className='flex flex-col gap-4 mx-10 my-10'>
+      <h1 className='font-semibold text-2xl'>Exercises</h1>
+      {error && <span className='text-red-500 font-semibold'>{error}</span>}
+      {exerciseData.map(item => {
+        return (
+          <Exercise
+            key={item.id}
+            title={item.name}
+            count={item.count}
+            id={item.id}
+          />
+        );
+      })}
+
+      <input
+        type='text'
+        className='border border-gray-600 w-40 px-2'
+        value={inputValue}
+        onChange={onChangeExerciseHandler}
+      />
+      <button
+        className='border border-gray-600 w-fit px-4 py-1'
+        onClick={onAddExerciseHandler}>
+        Add exercises
+      </button>
     </div>
   );
 };

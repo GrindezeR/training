@@ -1,5 +1,7 @@
+import axios from 'axios';
 import { ChangeEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { api } from '../../api';
 import { AppType, saveLoginData } from '../../state/appReducer';
 import { AppRootStateType } from '../../state/store';
 import styles from './styles.module.css';
@@ -37,29 +39,24 @@ export const Form = () => {
     const nameValue = name.trim();
 
     if (emailValue !== '' && passwordValue !== '' && nameValue !== '') {
-      fetch('http://192.168.0.105:3000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: nameValue,
-          email: emailValue,
-          password: passwordValue,
-        }),
-      }).then(res => {
-        if (res.ok) {
-          console.log('SENT');
-        } else {
-          console.log('SENT ERROR');
+      try {
+        const response = await api.register(
+          nameValue,
+          emailValue,
+          passwordValue
+        );
+        console.log(response.data);
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          console.log(error.message);
           setError(true);
         }
+      } finally {
         setSent(true);
-      });
-      // dispatch(saveLoginData(emailValue, passwordValue, nameValue));
-      setEmail('');
-      setPassword('');
-      setName('');
+        setEmail('');
+        setPassword('');
+        setName('');
+      }
     }
   };
 

@@ -29,23 +29,24 @@ export const LoginForm = () => {
     const nameValue = name.trim();
 
     if (passwordValue !== '' && nameValue !== '') {
-      fetch('http://192.168.0.105:3000/api/auth', {
+      fetch('http://192.168.0.104:3000/api/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          password: passwordValue,
           name: nameValue,
+          password: passwordValue,
         }),
       })
         .then(res => res.json())
         .then(data => {
           if (data.status === 200) {
-            console.log(data)
-            navigate(`/profile/${data.user_id}`);
+            console.log(data);
+            navigate(`/profile/?id=${data.user_id}`);
             localStorage.setItem('auth', 'true');
-            dispatch(logInAC(true));
+            localStorage.setItem('id', data.user_id);
+            dispatch(logInAC(true, data.user_id));
           } else return Promise.reject(data);
         })
         .catch(error => {
